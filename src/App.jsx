@@ -11,11 +11,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* <Route path="/signup" element={<Signup />} /> */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* <Route path="/students" element={<Students />} /> */}
-          {/* <Route path="/courses" element={<Courses />} /> */}
+          <Route path="/students" element={<Students />} />
+          <Route path="/courses" element={<Courses />} />
         </Route>
       </Routes>
     </BrowserRouter>

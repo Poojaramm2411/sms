@@ -1,0 +1,144 @@
+.students-container {
+  padding: 20px;
+  background: #f4f7fb;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* HEADER */
+.students-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.students-header h2 {
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* ADD BUTTON */
+.add-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+  margin-left:auto;
+}
+
+.add-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* TABLE WRAPPER */
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* TABLE */
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table th,
+.students-table td {
+  padding: 12px;
+  text-align: center;
+}
+
+/* TABLE HEADER */
+.students-table th {
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* ROWS */
+.students-table tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.students-table tr:hover {
+  background: #f1f5ff;
+}
+
+/* STATUS */
+.status {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.inactive {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* NO DATA */
+.no-data {
+  padding: 20px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.icon {
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+}
+
+.icon:hover {
+  transform: scale(1.2);
+}
+
+/* Colors */
+.view {
+  color: #2563eb; /* blue */
+}
+
+.edit {
+  color: #f59e0b; /* yellow */
+}
+
+.delete {
+  color: #dc2626; /* red */
+}

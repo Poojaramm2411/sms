@@ -13,11 +13,11 @@ function Login() {
 
     try {
       const data = await loginUser(form);
+      console.log("LOGIN RESPONSE:", data);
 
-      console.log("Login Success:", data);
-
-      // optional: store token
-      // localStorage.setItem("token", data.token);
+      const token = data.token || data.data?.token || data.data;
+      console.log("TOKEN:", token);
+      if (token && typeof token === "string") localStorage.setItem("token", token);
 
       navigate("/dashboard");
     } catch (err) {
