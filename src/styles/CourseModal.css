@@ -11,10 +11,10 @@
   align-items: center;
 }
 
-/* MODAL BOX */
+/* MODAL BOX */     
 .modal-box {
   background: #fff;
-  padding: 25px;
+  padding: 25px;   
   width: 400px;
   border-radius: 10px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.2);

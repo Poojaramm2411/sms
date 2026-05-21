@@ -25,7 +25,7 @@ function Navbar() {
 
   return (
     <div className="navbar">
-      <h2>Student Management</h2>
+      <h2>Knowedge Management</h2>
 
       <div className="profile" ref={dropdownRef}>
         {/* ✅ Professional Profile Icon */}

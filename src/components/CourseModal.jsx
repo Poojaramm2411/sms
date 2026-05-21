@@ -1,26 +1,28 @@
 import { useState, useEffect } from "react";
-import "./courseModal.css";
+import "../styles/Courses.css";
 
 function CourseModal({ isOpen, onClose, onSave, editData }) {
   const [course, setCourse] = useState({
     courseName: "",
     department: "",
     duration: "",
-    status: "Active",
+    
   });
 
   // Load edit data
   useEffect(() => {
-    if (editData) {
-      setCourse(editData);
-    } else {
-      setCourse({
-        courseName: "",
-        department: "",
-        duration: "",
-        status: "Active",
-      });
-    }
+    const timer = setTimeout(() => {
+      if (editData && typeof editData === "object") {
+        setCourse({
+          courseName: editData.courseName || "",
+          department: editData.department || "",
+          duration: editData.duration || "",
+        });
+      } else {
+        setCourse({ courseName: "", department: "", duration: "" });
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [editData]);
 
   if (!isOpen) return null;
@@ -68,18 +70,6 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
             onChange={handleChange}
             placeholder="e.g. 3 Months"
           />
-        </div>
-
-        <div className="form-group">
-          <label>Status</label>
-          <select
-            name="status"
-            value={course.status}
-            onChange={handleChange}
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
         </div>
 
         <div className="modal-actions">

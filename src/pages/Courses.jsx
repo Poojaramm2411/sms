@@ -1,42 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "../styles/Courses.css";
+import CourseModal from "../components/CourseModal";
+
+import {
+  getCourses,
+  addCourse,
+  deleteCourse,
+  updateCourse,
+} from "../services/courseService";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
 
-  // ✅ DELETE
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm("Are you sure to delete?");
-    if (!confirmDelete) return;
+  //  LOAD COURSES FROM API
+  
 
-    const updated = courses.filter((c) => c.id !== id);
-    setCourses(updated);
+  const fetchCourses = async () => {
+    try {
+      const data = await getCourses();
+      console.log("COURSES:", data);
+      setCourses(data || []);
+    } catch (err) {
+      console.error("Error fetching courses:", err);
+      setCourses([]);
+    }
+  };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCourses();
+  }, []);
+
+  //  ADD / UPDATE
+  const handleSave = async (course) => {
+    try {
+      if (editData) {
+        await updateCourse(editData.id, course);
+      } else {
+        await addCourse(course);
+      }
+
+      fetchCourses(); // refresh table
+      setIsModalOpen(false);
+      setEditData(null);
+    } catch (err) {
+      console.error("Save error:", err);
+    }
   };
 
-  // ✅ TOGGLE STATUS
-  const toggleStatus = (id) => {
-    const updated = courses.map((c) =>
-      c.id === id ? { ...c, isActive: !c.isActive } : c
-    );
-    setCourses(updated);
-  };
+  //  DELETE
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure to delete?")) return;
 
-  // ✅ EDIT
-  const handleEdit = (course) => {
-    alert(`Editing ${course.courseName}`);
-    // later → open modal / navigate to edit page
+    try {
+      await deleteCourse(id);
+      fetchCourses();
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   return (
     <div className="courses-container">
-      {/* HEADER */}
       <div className="courses-header">
         <h2>Courses</h2>
-        <button className="add-btn">+ Add Course</button>
+        <button
+          className="add-btn"
+          onClick={() => {
+            setEditData(null);
+            setIsModalOpen(true);
+          }}
+        >
+          + Add Course
+        </button>
       </div>
 
-      {/* TABLE */}
       <div className="table-wrapper">
         <table className="courses-table">
           <thead>
@@ -61,33 +101,30 @@ export default function Courses() {
               courses.map((c) => (
                 <tr key={c.id}>
                   <td>{c.id}</td>
-                  <td>{c.courseName}</td>
+                  <td>{c.coursename}</td> {/*  from backend */}
                   <td>{c.department}</td>
                   <td>{c.duration}</td>
 
-                  {/* STATUS */}
                   <td>
                     <span
                       className={
-                        c.isActive ? "status active" : "status inactive"
+                        c.active ? "status active" : "status inactive"
                       }
-                      onClick={() => toggleStatus(c.id)}
                     >
-                      {c.isActive ? "Active" : "Inactive"}
+                      {c.active ? "Active" : "Inactive"}
                     </span>
                   </td>
 
-                  {/* ✅ ACTION ICONS */}
                   <td className="action-buttons">
                     <FaEdit
                       className="icon edit"
-                      title="Edit"
-                      onClick={() => handleEdit(c)}
+                      onClick={() => {
+                        setEditData(c);
+                        setIsModalOpen(true);
+                      }}
                     />
-
                     <FaTrash
                       className="icon delete"
-                      title="Delete"
                       onClick={() => handleDelete(c.id)}
                     />
                   </td>
@@ -97,6 +134,16 @@ export default function Courses() {
           </tbody>
         </table>
       </div>
+
+      <CourseModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditData(null);
+        }}
+        onSave={handleSave}
+        editData={editData}
+      />
     </div>
   );
 }

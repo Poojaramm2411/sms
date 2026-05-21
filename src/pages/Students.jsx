@@ -1,39 +1,52 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import "../styles/Students.css";
 import "../styles/StudentModal.css";
 import StudentModal from "../components/StudentModal";
-import {
+
+import { 
   getStudents,
   addStudent,
   deleteStudent,
   updateStudent,
 } from "../services/studentService";
-
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [viewMode, setViewMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    getStudents()
-      .then((data) => { if (!cancelled) setStudents(Array.isArray(data) ? data : []); })
-      .catch(() => { if (!cancelled) setStudents([]); });
-    return () => { cancelled = true; };
-  }, []);
+  const navigate = useNavigate();
 
-  const fetchStudents = () => {
-    getStudents()
-    
-    
-      .then((data) => setStudents(Array.isArray(data) ? data : []))
-      .catch(() => setStudents([]));
-      
+  const fetchStudents = async () => {
+    setIsLoading(true);
+    setFetchError("");
+
+    try {
+      const data = await getStudents();
+
+      console.log("FINAL STUDENTS:", data); // 🔥 DEBUG
+
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setStudents([]);
+      setFetchError("Unable to load students. Please check your network or login token.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // ✅ ADD / UPDATE
+  //  CALL AFTER DEFINITION
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStudents();
+  }, []);
+
+  //  ADD / UPDATE
   const handleSaveStudent = async (student) => {
     try {
       if (selectedStudent) {
@@ -51,7 +64,7 @@ export default function Students() {
     }
   };
 
-  // ✅ DELETE
+  // DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this student?")) return;
 
@@ -63,14 +76,12 @@ export default function Students() {
     }
   };
 
-  // ✅ VIEW
+  //  VIEW
   const handleView = (stu) => {
-    setSelectedStudent(stu);
-    setViewMode(true);
-    setShowModal(true);
+    navigate("/student-detail", { state: { student: stu } });
   };
 
-  // ✅ EDIT
+  //  EDIT
   const handleEdit = (stu) => {
     setSelectedStudent(stu);
     setViewMode(false);
@@ -99,33 +110,47 @@ export default function Students() {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Birth Date</th>
-              <th>City</th>
+              <th>Age</th>
+              <th>Student Code</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {students.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  Loading students...
+                </td>
+              </tr>
+            ) : fetchError ? (
+              <tr>
+                <td colSpan="7" className="no-data">
+                  {fetchError}
+                </td>
+              </tr>
+            ) : students.length === 0 ? (
               <tr>
                 <td colSpan="7" className="no-data">
                   No Students Found
                 </td>
               </tr>
             ) : (
-              students.map((stu) => (
-                <tr key={stu.id}>
-                  <td>{stu.id}</td>
-                  <td>{stu.name}</td>
-                  <td>{stu.email}</td>
-                  <td>{stu.birthDate}</td>
-                  <td>{stu.city}</td>
+              students.map((stu, index) => (
+                <tr key={stu.id || stu.studentId || index}>
+                  <td>{stu.id || stu.studentId || "-"}</td>
+                  <td>{stu.name || "-"}</td>
+                  <td>{stu.email || "-"}</td>
+                  <td>{stu.age || "-"}</td>
+                  <td>{stu.studentCode || "-"}</td>
 
                   <td>
                     <span
                       className={
-                        stu.isActive ? "status active" : "status inactive"
+                        stu.isActive
+                          ? "status active"
+                          : "status inactive"
                       }
                     >
                       {stu.isActive ? "Active" : "Inactive"}
@@ -143,15 +168,21 @@ export default function Students() {
                     />
                     <FaTrash
                       className="icon delete"
-                      onClick={() => handleDelete(stu.id)}
+                      onClick={() =>
+                        handleDelete(stu.id || stu.studentId)
+                      }
                     />
                   </td>
+                  
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
+      {/* DEBUG (use if needed) */}
+      {/* <pre>{JSON.stringify(students, null, 2)}</pre> */}
 
       {showModal && (
         <StudentModal
