@@ -8,15 +8,13 @@ import {
   addCourse,
   deleteCourse,
   updateCourse,
+  toggleCourseStatus,  // ✅ added
 } from "../services/courseService";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-
-  //  LOAD COURSES FROM API
-  
 
   const fetchCourses = async () => {
     try {
@@ -28,12 +26,32 @@ export default function Courses() {
       setCourses([]);
     }
   };
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchCourses();
+    let isMounted = true;
+
+    const loadCourses = async () => {
+      try {
+        const data = await getCourses();
+        console.log("COURSES:", data);
+        if (isMounted) {
+          setCourses(data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        if (isMounted) {
+          setCourses([]);
+        }
+      }
+    };
+
+    loadCourses();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  //  ADD / UPDATE
   const handleSave = async (course) => {
     try {
       if (editData) {
@@ -41,8 +59,7 @@ export default function Courses() {
       } else {
         await addCourse(course);
       }
-
-      fetchCourses(); // refresh table
+      fetchCourses();
       setIsModalOpen(false);
       setEditData(null);
     } catch (err) {
@@ -50,15 +67,24 @@ export default function Courses() {
     }
   };
 
-  //  DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure to delete?")) return;
-
     try {
       await deleteCourse(id);
       fetchCourses();
     } catch (err) {
       console.error("Delete error:", err);
+    }
+  };
+
+  // ✅ new toggle handler
+  const handleToggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
+    try {
+      await toggleCourseStatus(id, newStatus);
+      fetchCourses();
+    } catch (err) {
+      console.error("Toggle status error:", err);
     }
   };
 
@@ -89,7 +115,6 @@ export default function Courses() {
               <th>Action</th>
             </tr>
           </thead>
-
           <tbody>
             {courses.length === 0 ? (
               <tr>
@@ -101,20 +126,20 @@ export default function Courses() {
               courses.map((c) => (
                 <tr key={c.id}>
                   <td>{c.id}</td>
-                  <td>{c.coursename}</td> {/*  from backend */}
+                  <td>{c.courseName}</td>
                   <td>{c.department}</td>
                   <td>{c.duration}</td>
-
                   <td>
+                    {/* ✅ clickable status toggle */}
                     <span
-                      className={
-                        c.active ? "status active" : "status inactive"
-                      }
+                      className={c.status === "Active" ? "status active" : "status inactive"}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleToggleStatus(c.id, c.status)}
+                      title="Click to toggle status"
                     >
-                      {c.active ? "Active" : "Inactive"}
+                      {c.status}
                     </span>
                   </td>
-
                   <td className="action-buttons">
                     <FaEdit
                       className="icon edit"

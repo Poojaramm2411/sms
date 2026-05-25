@@ -6,10 +6,9 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
     courseName: "",
     department: "",
     duration: "",
-    
+    status: "",
   });
 
-  // Load edit data
   useEffect(() => {
     const timer = setTimeout(() => {
       if (editData && typeof editData === "object") {
@@ -17,9 +16,10 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
           courseName: editData.courseName || "",
           department: editData.department || "",
           duration: editData.duration || "",
+          status: editData.status || "",
         });
       } else {
-        setCourse({ courseName: "", department: "", duration: "" });
+        setCourse({ courseName: "", department: "", duration: "", status: "" });
       }
     }, 0);
     return () => clearTimeout(timer);
@@ -48,6 +48,7 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
             name="courseName"
             value={course.courseName}
             onChange={handleChange}
+            placeholder="e.g. Java Programming"
           />
         </div>
 
@@ -58,6 +59,7 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
             name="department"
             value={course.department}
             onChange={handleChange}
+            placeholder="e.g. Computer Science"
           />
         </div>
 
@@ -72,13 +74,22 @@ function CourseModal({ isOpen, onClose, onSave, editData }) {
           />
         </div>
 
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            name="status"
+            value={course.status}
+            onChange={handleChange}
+          >
+            <option value="">-- Select Status --</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
         <div className="modal-actions">
-          <button className="btn cancel" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="btn save" onClick={handleSubmit}>
-            Save
-          </button>
+          <button className="btn cancel" onClick={onClose}>Cancel</button>
+          <button className="btn save" onClick={handleSubmit}>Save</button>
         </div>
       </div>
     </div>
