@@ -1,26 +1,3 @@
-// export default function Dashboard() {
-//   return (
-//     <div className="dashboard-container">
-//       <div className="card blue">
-//         <h2>Students</h2>
-//       </div>
-
-//       <div className="card green">
-//         <h2>Courses</h2>
-//       </div>
-
-//       <div className="card purple">
-//         <h2>Batches</h2>
-//       </div>
-
-//       <div className="card yellow">
-//         <h2> Offers</h2>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import { useEffect, useState } from "react";
 import { FaUserGraduate, FaBook, FaLayerGroup, FaGift } from "react-icons/fa";
 import "../App.css";
