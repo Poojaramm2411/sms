@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "../styles/Courses.css";
 import CourseModal from "../components/CourseModal";
 
@@ -8,13 +9,14 @@ import {
   addCourse,
   deleteCourse,
   updateCourse,
-  toggleCourseStatus,  // ✅ added
+  toggleCourseStatus, 
 } from "../services/courseService";
 
 export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+  const navigate = useNavigate();
 
   const fetchCourses = async () => {
     try {
@@ -130,7 +132,7 @@ export default function Courses() {
                   <td>{c.department}</td>
                   <td>{c.duration}</td>
                   <td>
-                    {/* ✅ clickable status toggle */}
+                    {/* clickable status toggle */}
                     <span
                       className={c.status === "Active" ? "status active" : "status inactive"}
                       style={{ cursor: "pointer" }}
@@ -141,6 +143,7 @@ export default function Courses() {
                     </span>
                   </td>
                   <td className="action-buttons">
+                    <FaEye className="icon view" onClick={() =>  navigate("/course-detail", { state: { course: c } })} />
                     <FaEdit
                       className="icon edit"
                       onClick={() => {

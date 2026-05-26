@@ -5,12 +5,14 @@ import "../styles/Students.css";
 import "../styles/StudentModal.css";
 import StudentModal from "../components/StudentModal";
 
-import { 
+import {
   getStudents,
   addStudent,
   deleteStudent,
   updateStudent,
+  toggleStudentStatus,  // ✅ added
 } from "../services/studentService";
+
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -18,35 +20,28 @@ export default function Students() {
   const [viewMode, setViewMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
-
   const navigate = useNavigate();
 
   const fetchStudents = async () => {
     setIsLoading(true);
     setFetchError("");
-
     try {
       const data = await getStudents();
-
-      console.log("FINAL STUDENTS:", data); // 🔥 DEBUG
-
+      console.log("FINAL STUDENTS:", data);
       setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Fetch error:", err);
       setStudents([]);
-      setFetchError("Unable to load students. Please check your network or login token.");
+      setFetchError("Unable to load students.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  //  CALL AFTER DEFINITION
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchStudents();
   }, []);
 
-  //  ADD / UPDATE
   const handleSaveStudent = async (student) => {
     try {
       if (selectedStudent) {
@@ -54,7 +49,6 @@ export default function Students() {
       } else {
         await addStudent(student);
       }
-
       fetchStudents();
       setShowModal(false);
       setSelectedStudent(null);
@@ -64,10 +58,8 @@ export default function Students() {
     }
   };
 
-  // DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this student?")) return;
-
     try {
       await deleteStudent(id);
       fetchStudents();
@@ -76,12 +68,20 @@ export default function Students() {
     }
   };
 
-  //  VIEW
+  // ✅ toggle status handler
+  const handleToggleStatus = async (id) => {
+    try {
+      await toggleStudentStatus(id);
+      fetchStudents();
+    } catch (err) {
+      console.error("Toggle error:", err);
+    }
+  };
+
   const handleView = (stu) => {
     navigate("/student-detail", { state: { student: stu } });
   };
 
-  //  EDIT
   const handleEdit = (stu) => {
     setSelectedStudent(stu);
     setViewMode(false);
@@ -92,13 +92,7 @@ export default function Students() {
     <div className="students-container">
       <div className="students-header">
         <h2>Students</h2>
-        <button
-          className="add-btn"
-          onClick={() => {
-            setSelectedStudent(null);
-            setShowModal(true);
-          }}
-        >
+        <button className="add-btn" onClick={() => { setSelectedStudent(null); setShowModal(true); }}>
           + Add Student
         </button>
       </div>
@@ -116,64 +110,39 @@ export default function Students() {
               <th>Action</th>
             </tr>
           </thead>
-
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan="7" className="no-data">
-                  Loading students...
-                </td>
-              </tr>
+              <tr><td colSpan="7" className="no-data">Loading students...</td></tr>
             ) : fetchError ? (
-              <tr>
-                <td colSpan="7" className="no-data">
-                  {fetchError}
-                </td>
-              </tr>
+              <tr><td colSpan="7" className="no-data">{fetchError}</td></tr>
             ) : students.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="no-data">
-                  No Students Found
-                </td>
-              </tr>
+              <tr><td colSpan="7" className="no-data">No Students Found</td></tr>
             ) : (
               students.map((stu, index) => (
-                <tr key={stu.id || stu.studentId || index}>
-                  <td>{stu.id || stu.studentId || "-"}</td>
+                <tr key={stu.id || index}>
+                  <td>{stu.id || "-"}</td>
                   <td>{stu.name || "-"}</td>
                   <td>{stu.email || "-"}</td>
                   <td>{stu.age || "-"}</td>
                   <td>{stu.studentCode || "-"}</td>
-
                   <td>
-                    <span
-                      className={
-                        stu.isActive
-                          ? "status active"
-                          : "status inactive"
-                      }
+                    {/* ✅ ON/OFF Toggle Button */}
+                    <div
+                      className={`toggle-switch ${stu.isActive ? "on" : "off"}`}
+                      onClick={() => handleToggleStatus(stu.id)}
+                      title="Click to toggle status"
                     >
-                      {stu.isActive ? "Active" : "Inactive"}
-                    </span>
+                      <div className="toggle-knob"></div>
+                      <span className="toggle-label">
+                        {stu.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </div>
                   </td>
-
                   <td className="action-buttons">
-                    <FaEye
-                      className="icon view"
-                      onClick={() => handleView(stu)}
-                    />
-                    <FaEdit
-                      className="icon edit"
-                      onClick={() => handleEdit(stu)}
-                    />
-                    <FaTrash
-                      className="icon delete"
-                      onClick={() =>
-                        handleDelete(stu.id || stu.studentId)
-                      }
-                    />
+                    <FaEye className="icon view" onClick={() => handleView(stu)} />
+                    <FaEdit className="icon edit" onClick={() => handleEdit(stu)} />
+                    <FaTrash className="icon delete" onClick={() => handleDelete(stu.id)} />
                   </td>
-                  
                 </tr>
               ))
             )}
@@ -181,16 +150,9 @@ export default function Students() {
         </table>
       </div>
 
-      {/* DEBUG (use if needed) */}
-      {/* <pre>{JSON.stringify(students, null, 2)}</pre> */}
-
       {showModal && (
         <StudentModal
-          onClose={() => {
-            setShowModal(false);
-            setSelectedStudent(null);
-            setViewMode(false);
-          }}
+          onClose={() => { setShowModal(false); setSelectedStudent(null); setViewMode(false); }}
           onSave={handleSaveStudent}
           student={selectedStudent}
           viewMode={viewMode}

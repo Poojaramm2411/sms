@@ -142,3 +142,53 @@
 .delete {
   color: #dc2626; /* red */
 }
+/* ON/OFF Toggle Switch */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background 0.3s;
+  user-select: none;
+}
+
+.toggle-switch.on {
+  background-color: #22c55e;
+  color: white;
+}
+
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background 0.3s;
+  user-select: none;
+  min-width: 85px;        /* ✅ wider for "Inactive" text */
+  justify-content: center;
+}
+
+.toggle-switch.on {
+  background-color: #22c55e;  /* green */
+  color: white;
+}
+
+.toggle-switch.off {
+  background-color: #ef4444;  /* red */
+  color: white;
+}
+
+.toggle-knob {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+}

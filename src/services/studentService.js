@@ -12,10 +12,11 @@ const getHeaders = () => {
     headers.Authorization = `Bearer ${token}`;
   }
 
+  
   return headers;
 };
 
-// 🔹 GET STUDENTS
+// GET STUDENTS
 export const getStudents = async () => {
   const res = await fetch(API_ENDPOINTS.GET_STUDENT, {
     method: "GET",
@@ -29,13 +30,13 @@ export const getStudents = async () => {
   return Array.isArray(json)
     ? json
     : Array.isArray(json.content)
-    ? json.content        // ✅ THIS FIXES IT
+    ? json.content        
     : Array.isArray(json.data)
     ? json.data
     : [];
 };
 
-// 🔹 ADD STUDENT
+// ADD STUDENT
 export const addStudent = async (data) => {
   const res = await fetch(API_ENDPOINTS.POST_STUDENT, {
     method: "POST",
@@ -48,7 +49,7 @@ export const addStudent = async (data) => {
   return await res.json();
 };
 
-// 🔹 DELETE STUDENT
+// DELETE STUDENT
 export const deleteStudent = async (id) => {
   const res = await fetch(API_ENDPOINTS.DELETE_STUDENT(id), {
     method: "DELETE",
@@ -58,7 +59,7 @@ export const deleteStudent = async (id) => {
   if (!res.ok) throw new Error("Delete student failed");
 };
 
-// 🔹 UPDATE STUDENT
+// UPDATE STUDENT
 export const updateStudent = async (id, data) => {
   const res = await fetch(API_ENDPOINTS.UPDATE_STUDENT(id), {
     method: "PUT",
@@ -68,5 +69,14 @@ export const updateStudent = async (id, data) => {
 
   if (!res.ok) throw new Error("Update student failed");
 
+  return await res.json();
+};
+//Toggle student status
+export const toggleStudentStatus = async (id) => {
+  const res = await fetch(API_ENDPOINTS.UPDATE_STUDENT(id), {
+    method: "PATCH",  
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Toggle status failed");
   return await res.json();
 };

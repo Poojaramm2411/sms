@@ -11,6 +11,7 @@ import StudentDetail from "./pages/StudentDetail"; // detail page
 import Batches from "./pages/Batches"; // batches page
 import Instructors from "./pages/Instructors";
 import "./App.css";
+import CourseDetail from "./pages/CourseDetail";
 // Layout
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -30,6 +31,7 @@ function App() {
           <Route path="/courses" element={<Courses />} />
           <Route path="/batches" element={<Batches />} />
           <Route path="/instructors" element={<Instructors />} />
+          <Route path="/course-detail" element={<CourseDetail />} />
         </Route>
 
         {/* Fallback Route */}

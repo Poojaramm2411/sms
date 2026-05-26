@@ -4,7 +4,6 @@ import "../styles/StudentDetail.css";
 export default function StudentDetail() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const student = location.state?.student;
 
   if (!student) {
@@ -20,27 +19,42 @@ export default function StudentDetail() {
           <label>ID:</label>
           <span>{student.id}</span>
         </div>
-
         <div className="detail-row">
           <label>Name:</label>
           <span>{student.name}</span>
         </div>
-
         <div className="detail-row">
           <label>Email:</label>
           <span>{student.email}</span>
         </div>
-
         <div className="detail-row">
           <label>Age:</label>
           <span>{student.age}</span>
         </div>
-
+        <div className="detail-row">
+          <label>Date of Birth:</label>
+          <span>{student.dateOfBirth || "N/A"}</span>
+        </div>
         <div className="detail-row">
           <label>Student Code:</label>
           <span>{student.studentCode}</span>
         </div>
-
+        <div className="detail-row">
+          <label>Address:</label>
+          <span>{student.address || "N/A"}</span>
+        </div>
+        <div className="detail-row">
+          <label>City:</label>
+          <span>{student.city || "N/A"}</span>
+        </div>
+        <div className="detail-row">
+          <label>State:</label>
+          <span>{student.state || "N/A"}</span>
+        </div>
+        <div className="detail-row">
+          <label>Pin Code:</label>
+          <span>{student.pinCode || "N/A"}</span>
+        </div>
         <div className="detail-row">
           <label>Status:</label>
           <span className={student.isActive ? "active" : "inactive"}>
