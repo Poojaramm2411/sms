@@ -16,6 +16,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
 
+
 function App() {
   return (
     <ErrorBoundary>

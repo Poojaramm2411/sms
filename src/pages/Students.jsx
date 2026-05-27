@@ -1,25 +1,29 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash, FaSearch, FaUpload, FaDownload } from "react-icons/fa";
 import "../styles/Students.css";
 import "../styles/StudentModal.css";
 import StudentModal from "../components/StudentModal";
 
 import {
-  getStudents,
-  addStudent,
-  deleteStudent,
-  updateStudent,
-  toggleStudentStatus,  // ✅ added
+  getStudents, addStudent, deleteStudent,
+  updateStudent, toggleStudentStatus,
+  searchStudents, exportStudents,
+  importStudents, downloadTemplate,
 } from "../services/studentService";
 
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [viewMode, setViewMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef();
   const navigate = useNavigate();
 
   const fetchStudents = async () => {
@@ -27,10 +31,8 @@ export default function Students() {
     setFetchError("");
     try {
       const data = await getStudents();
-      console.log("FINAL STUDENTS:", data);
       setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Fetch error:", err);
       setStudents([]);
       setFetchError("Unable to load students.");
     } finally {
@@ -38,9 +40,63 @@ export default function Students() {
     }
   };
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  useEffect(() => { fetchStudents(); }, []);
+
+  const handleSearch = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (query.trim() === "") { fetchStudents(); return; }
+    try {
+      setIsLoading(true);
+      const data = await searchStudents(query);
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ✅ Export Excel
+  const handleExport = async () => {
+    try {
+      await exportStudents();
+    } catch (err) {
+      alert("Export failed!");
+    }
+  };
+
+  // ✅ Download Template
+  const handleDownloadTemplate = async () => {
+    try {
+      await downloadTemplate();
+    } catch (err) {
+      alert("Template download failed!");
+    }
+  };
+
+  // ✅ File select
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) setSelectedFile(file);
+  };
+
+  // ✅ Import upload
+  const handleImportUpload = async () => {
+    if (!selectedFile) { alert("Please select a file first!"); return; }
+    setImporting(true);
+    try {
+      const result = await importStudents(selectedFile);
+      alert(result);
+      setShowImportModal(false);
+      setSelectedFile(null);
+      fetchStudents();
+    } catch (err) {
+      alert("Import failed!");
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const handleSaveStudent = async (student) => {
     try {
@@ -68,7 +124,6 @@ export default function Students() {
     }
   };
 
-  // ✅ toggle status handler
   const handleToggleStatus = async (id) => {
     try {
       await toggleStudentStatus(id);
@@ -78,36 +133,45 @@ export default function Students() {
     }
   };
 
-  const handleView = (stu) => {
-    navigate("/student-detail", { state: { student: stu } });
-  };
-
-  const handleEdit = (stu) => {
-    setSelectedStudent(stu);
-    setViewMode(false);
-    setShowModal(true);
-  };
-
   return (
     <div className="students-container">
+
+      {/* HEADER */}
       <div className="students-header">
         <h2>Students</h2>
-        <button className="add-btn" onClick={() => { setSelectedStudent(null); setShowModal(true); }}>
-          + Add Student
-        </button>
+        <div className="header-actions">
+          <button className="upload-btn" onClick={() => setShowImportModal(true)}>
+            <FaUpload /> Upload
+          </button>
+          <button className="download-btn" onClick={handleExport}>
+            <FaDownload /> Download
+          </button>
+          <button className="add-btn" onClick={() => { setSelectedStudent(null); setShowModal(true); }}>
+            + Add Student
+          </button>
+        </div>
       </div>
 
+      {/* SEARCH BAR */}
+      <div className="search-container">
+        <FaSearch className="search-icon" />
+        <input
+          type="text"
+          placeholder="Search by ID, Name, Email, City..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="search-input"
+        />
+      </div>
+
+      {/* TABLE */}
       <div className="table-wrapper">
         <table className="students-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Age</th>
-              <th>Student Code</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>ID</th><th>Name</th><th>Email</th>
+              <th>Age</th><th>Student Code</th>
+              <th>Status</th><th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -126,7 +190,6 @@ export default function Students() {
                   <td>{stu.age || "-"}</td>
                   <td>{stu.studentCode || "-"}</td>
                   <td>
-                    {/* ✅ ON/OFF Toggle Button */}
                     <div
                       className={`toggle-switch ${stu.isActive ? "on" : "off"}`}
                       onClick={() => handleToggleStatus(stu.id)}
@@ -139,8 +202,8 @@ export default function Students() {
                     </div>
                   </td>
                   <td className="action-buttons">
-                    <FaEye className="icon view" onClick={() => handleView(stu)} />
-                    <FaEdit className="icon edit" onClick={() => handleEdit(stu)} />
+                    <FaEye className="icon view" onClick={() => navigate("/student-detail", { state: { student: stu } })} />
+                    <FaEdit className="icon edit" onClick={() => { setSelectedStudent(stu); setShowModal(true); }} />
                     <FaTrash className="icon delete" onClick={() => handleDelete(stu.id)} />
                   </td>
                 </tr>
@@ -149,6 +212,60 @@ export default function Students() {
           </tbody>
         </table>
       </div>
+
+      {/* ✅ IMPORT MODAL */}
+      {showImportModal && (
+        <div className="modal-overlay">
+          <div className="import-modal">
+            <h2>Upload Students</h2>
+
+            {/* Step 1 */}
+            <div className="import-step">
+              <h4>Step 1: Download Template</h4>
+              <p>Download the Excel template and fill in student data.</p>
+              <button className="template-btn" onClick={handleDownloadTemplate}>
+                <FaDownload /> Download Template
+              </button>
+            </div>
+
+            <hr />
+
+            {/* Step 2 */}
+            <div className="import-step">
+              <h4>Step 2: Upload Filled Excel File</h4>
+              <p>Select the filled Excel file (.xlsx) to import students.</p>
+              <div
+                className="file-drop-area"
+                onClick={() => fileInputRef.current.click()}
+              >
+                <FaUpload className="upload-icon" />
+                <p>{selectedFile ? selectedFile.name : "Click to select Excel file"}</p>
+                <span>.xlsx files only</span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="import-modal-actions">
+              <button className="btn cancel"
+                onClick={() => { setShowImportModal(false); setSelectedFile(null); }}>
+                Cancel
+              </button>
+              <button className="btn save"
+                onClick={handleImportUpload}
+                disabled={!selectedFile || importing}>
+                {importing ? "Uploading..." : "Upload"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <StudentModal
