@@ -23,15 +23,24 @@ export default function Students() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [importing, setImporting] = useState(false);
+
+  // ✅ Pagination state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
   const fileInputRef = useRef();
   const navigate = useNavigate();
 
-  const fetchStudents = async () => {
+  const fetchStudents = async (page = 0) => {
     setIsLoading(true);
     setFetchError("");
     try {
-      const data = await getStudents();
-      setStudents(Array.isArray(data) ? data : []);
+      const data = await getStudents(page, 10);
+      setStudents(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+      setCurrentPage(data.currentPage);
     } catch (err) {
       setStudents([]);
       setFetchError("Unable to load students.");
@@ -40,16 +49,21 @@ export default function Students() {
     }
   };
 
-  useEffect(() => { fetchStudents(); }, []);
+  useEffect(() => { fetchStudents(0); }, []);
 
+  // ✅ Search with pagination
   const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-    if (query.trim() === "") { fetchStudents(); return; }
+    setCurrentPage(0);
+    if (query.trim() === "") { fetchStudents(0); return; }
     try {
       setIsLoading(true);
-      const data = await searchStudents(query);
-      setStudents(Array.isArray(data) ? data : []);
+      const data = await searchStudents(query, 0, 10);
+      setStudents(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+      setCurrentPage(0);
     } catch (err) {
       console.error("Search error:", err);
     } finally {
@@ -57,31 +71,33 @@ export default function Students() {
     }
   };
 
-  // ✅ Export Excel
+  // ✅ Page change handler
+  const handlePageChange = async (page) => {
+    if (searchQuery.trim()) {
+      const data = await searchStudents(searchQuery, page, 10);
+      setStudents(data.content);
+      setTotalPages(data.totalPages);
+      setCurrentPage(page);
+    } else {
+      fetchStudents(page);
+    }
+  };
+
   const handleExport = async () => {
-    try {
-      await exportStudents();
-    } catch (err) {
-      alert("Export failed!");
-    }
+    try { await exportStudents(); }
+    catch (err) { alert("Export failed!"); }
   };
 
-  // ✅ Download Template
   const handleDownloadTemplate = async () => {
-    try {
-      await downloadTemplate();
-    } catch (err) {
-      alert("Template download failed!");
-    }
+    try { await downloadTemplate(); }
+    catch (err) { alert("Template download failed!"); }
   };
 
-  // ✅ File select
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) setSelectedFile(file);
   };
 
-  // ✅ Import upload
   const handleImportUpload = async () => {
     if (!selectedFile) { alert("Please select a file first!"); return; }
     setImporting(true);
@@ -90,7 +106,7 @@ export default function Students() {
       alert(result);
       setShowImportModal(false);
       setSelectedFile(null);
-      fetchStudents();
+      fetchStudents(0);
     } catch (err) {
       alert("Import failed!");
     } finally {
@@ -105,7 +121,7 @@ export default function Students() {
       } else {
         await addStudent(student);
       }
-      fetchStudents();
+      fetchStudents(currentPage);
       setShowModal(false);
       setSelectedStudent(null);
       setViewMode(false);
@@ -118,7 +134,7 @@ export default function Students() {
     if (!window.confirm("Delete this student?")) return;
     try {
       await deleteStudent(id);
-      fetchStudents();
+      fetchStudents(currentPage);
     } catch (err) {
       console.error("Delete error:", err);
     }
@@ -127,10 +143,64 @@ export default function Students() {
   const handleToggleStatus = async (id) => {
     try {
       await toggleStudentStatus(id);
-      fetchStudents();
+      fetchStudents(currentPage);
     } catch (err) {
       console.error("Toggle error:", err);
     }
+  };
+
+  // ✅ Pagination buttons generator
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+
+    // Previous button
+    pages.push(
+      <button
+        key="prev"
+        className={`page-btn ${currentPage === 0 ? "disabled" : ""}`}
+        onClick={() => currentPage > 0 && handlePageChange(currentPage - 1)}
+        disabled={currentPage === 0}
+      >
+        &lt; Prev
+      </button>
+    );
+
+    // Page numbers
+    for (let i = 0; i < totalPages; i++) {
+      if (
+        i === 0 ||
+        i === totalPages - 1 ||
+        (i >= currentPage - 1 && i <= currentPage + 1)
+      ) {
+        pages.push(
+          <button
+            key={i}
+            className={`page-btn ${currentPage === i ? "active" : ""}`}
+            onClick={() => handlePageChange(i)}
+          >
+            {i + 1}
+          </button>
+        );
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        pages.push(<span key={`dots-${i}`} className="page-dots">...</span>);
+      }
+    }
+
+    // Next button
+    pages.push(
+      <button
+        key="next"
+        className={`page-btn ${currentPage === totalPages - 1 ? "disabled" : ""}`}
+        onClick={() => currentPage < totalPages - 1 && handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages - 1}
+      >
+        Next &gt;
+      </button>
+    );
+
+    return pages;
   };
 
   return (
@@ -213,13 +283,23 @@ export default function Students() {
         </table>
       </div>
 
-      {/* ✅ IMPORT MODAL */}
+      {/* ✅ PAGINATION */}
+      {!isLoading && totalPages > 1 && (
+        <div className="pagination-container">
+          <span className="pagination-info">
+            Showing {currentPage * 10 + 1} - {Math.min((currentPage + 1) * 10, totalElements)} of {totalElements} students
+          </span>
+          <div className="pagination-buttons">
+            {renderPagination()}
+          </div>
+        </div>
+      )}
+
+      {/* IMPORT MODAL */}
       {showImportModal && (
         <div className="modal-overlay">
           <div className="import-modal">
             <h2>Upload Students</h2>
-
-            {/* Step 1 */}
             <div className="import-step">
               <h4>Step 1: Download Template</h4>
               <p>Download the Excel template and fill in student data.</p>
@@ -227,17 +307,11 @@ export default function Students() {
                 <FaDownload /> Download Template
               </button>
             </div>
-
             <hr />
-
-            {/* Step 2 */}
             <div className="import-step">
               <h4>Step 2: Upload Filled Excel File</h4>
               <p>Select the filled Excel file (.xlsx) to import students.</p>
-              <div
-                className="file-drop-area"
-                onClick={() => fileInputRef.current.click()}
-              >
+              <div className="file-drop-area" onClick={() => fileInputRef.current.click()}>
                 <FaUpload className="upload-icon" />
                 <p>{selectedFile ? selectedFile.name : "Click to select Excel file"}</p>
                 <span>.xlsx files only</span>
@@ -250,8 +324,6 @@ export default function Students() {
                 />
               </div>
             </div>
-
-            {/* Actions */}
             <div className="import-modal-actions">
               <button className="btn cancel"
                 onClick={() => { setShowImportModal(false); setSelectedFile(null); }}>

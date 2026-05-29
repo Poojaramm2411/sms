@@ -7,18 +7,20 @@ const getHeaders = () => {
   return headers;
 };
 
-// GET ALL STUDENTS
-export const getStudents = async () => {
-  const res = await fetch(API_ENDPOINTS.GET_STUDENT, {
-    method: "GET",
-    headers: getHeaders(),
-  });
+// GET STUDENTS WITH PAGINATION
+export const getStudents = async (page = 0, size = 10) => {
+  const res = await fetch(
+    `${API_ENDPOINTS.GET_STUDENT}?page=${page}&size=${size}`,
+    { method: "GET", headers: getHeaders() }
+  );
   if (!res.ok) throw new Error("Fetch students failed");
   const json = await res.json();
-  return Array.isArray(json) ? json
-       : Array.isArray(json.content) ? json.content
-       : Array.isArray(json.data) ? json.data
-       : [];
+  return {
+    content: Array.isArray(json.content) ? json.content : [],
+    totalPages: json.totalPages || 0,
+    totalElements: json.totalElements || 0,
+    currentPage: json.number || 0,
+  };
 };
 
 // ADD STUDENT
@@ -62,20 +64,23 @@ export const toggleStudentStatus = async (id) => {
   return await res.json();
 };
 
-// SEARCH STUDENTS
-export const searchStudents = async (query) => {
+// SEARCH STUDENTS WITH PAGINATION
+export const searchStudents = async (query, page = 0, size = 10) => {
   const res = await fetch(
-    `${API_ENDPOINTS.GET_STUDENT}/search?search=${encodeURIComponent(query)}&size=100`,
+    `${API_ENDPOINTS.GET_STUDENT}/search?search=${encodeURIComponent(query)}&page=${page}&size=${size}`,
     { method: "GET", headers: getHeaders() }
   );
   if (!res.ok) throw new Error("Search failed");
   const json = await res.json();
-  return Array.isArray(json) ? json
-       : Array.isArray(json.content) ? json.content
-       : [];
+  return {
+    content: Array.isArray(json.content) ? json.content : [],
+    totalPages: json.totalPages || 0,
+    totalElements: json.totalElements || 0,
+    currentPage: json.number || 0,
+  };
 };
 
-// ✅ EXPORT EXCEL
+// EXPORT EXCEL
 export const exportStudents = async () => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_ENDPOINTS.GET_STUDENT}/export`, {
@@ -87,12 +92,12 @@ export const exportStudents = async () => {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "students.xlsx";  // ✅ xlsx
+  a.download = "students.xlsx";
   a.click();
   window.URL.revokeObjectURL(url);
 };
 
-// ✅ DOWNLOAD TEMPLATE
+// DOWNLOAD TEMPLATE
 export const downloadTemplate = async () => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_ENDPOINTS.GET_STUDENT}/template`, {
@@ -109,7 +114,7 @@ export const downloadTemplate = async () => {
   window.URL.revokeObjectURL(url);
 };
 
-// ✅ IMPORT EXCEL
+// IMPORT EXCEL
 export const importStudents = async (file) => {
   const formData = new FormData();
   formData.append("file", file);

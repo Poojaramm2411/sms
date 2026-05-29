@@ -188,3 +188,9 @@
 .btn.cancel:hover {
   background: #d1d5db;
 }
+.readonly-input {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  border: 1px solid #e2e8f0;
+}

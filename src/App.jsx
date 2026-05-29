@@ -12,6 +12,7 @@ import Batches from "./pages/Batches"; // batches page
 import Instructors from "./pages/Instructors";
 import "./App.css";
 import CourseDetail from "./pages/CourseDetail";
+import BatchDetail from "./pages/BatchDetail";
 // Layout
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -33,6 +34,7 @@ function App() {
           <Route path="/batches" element={<Batches />} />
           <Route path="/instructors" element={<Instructors />} />
           <Route path="/course-detail" element={<CourseDetail />} />
+          <Route path="/batch-detail" element={<BatchDetail />} />
         </Route>
 
         {/* Fallback Route */}

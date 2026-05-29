@@ -61,7 +61,8 @@ export default function Instructors() {
               <th>ID</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Specialization</th>
+              <th>Batch Name</th>
+              <th>Course Name</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -70,7 +71,7 @@ export default function Instructors() {
           <tbody>
             {instructors.length === 0 ? (
               <tr>
-                <td colSpan="6" className="no-data">
+                <td colSpan="7" className="no-data">
                   No Instructors Found
                 </td>
               </tr>
@@ -80,7 +81,8 @@ export default function Instructors() {
                   <td>{i.id}</td>
                   <td>{i.name}</td>
                   <td>{i.email}</td>
-                  <td>{i.specialization}</td>
+                  <td>{i.batchName}</td>
+                  <td>{i.courseName}</td>
 
                   <td>
                     <span
