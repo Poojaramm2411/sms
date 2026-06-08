@@ -8,13 +8,12 @@ const getHeaders = () => {
   };
 };
 
-// ✅ GET BATCHES WITH PAGINATION
-export const getBatches = async (page = 0, size = 10) => {
-  const res = await fetch(
-    `${API_ENDPOINTS.GET_BATCH}?page=${page}&size=${size}`,
-    { method: "GET", headers: getHeaders() }
-  );
-  if (!res.ok) throw new Error(`GET BATCH FAILED: ${res.status}`);
+export const getBatches = async (page = 0, size = 10, search = "", status = "") => {
+  let url = `${API_ENDPOINTS.GET_BATCH}?page=${page}&size=${size}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (status) url += `&status=${status}`;
+  const res = await fetch(url, { method: "GET", headers: getHeaders() });
+  if (!res.ok) throw new Error(`Failed to fetch batches: ${res.status}`);
   const json = await res.json();
   return {
     content: Array.isArray(json.content) ? json.content : [],
@@ -24,53 +23,39 @@ export const getBatches = async (page = 0, size = 10) => {
   };
 };
 
-// GET BATCH BY ID
 export const getBatchById = async (id) => {
-  const res = await fetch(API_ENDPOINTS.GET_BATCH_BY_ID(id), {
-    method: "GET",
-    headers: getHeaders(),
-  });
-  if (!res.ok) throw new Error(`GET BY ID FAILED: ${res.status}`);
+  const res = await fetch(API_ENDPOINTS.GET_BATCH_BY_ID(id), { method: "GET", headers: getHeaders() });
+  if (!res.ok) throw new Error(`Failed to fetch batch: ${res.status}`);
   return await res.json();
 };
 
-// CREATE BATCH
 export const createBatch = async (data) => {
   const res = await fetch(API_ENDPOINTS.POST_BATCH, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(`CREATE FAILED: ${res.status}`);
+  if (!res.ok) throw new Error(`Failed to create batch: ${res.status}`);
   return await res.json();
 };
 
-// UPDATE BATCH
 export const updateBatch = async (id, data) => {
   const res = await fetch(API_ENDPOINTS.UPDATE_BATCH(id), {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error(`UPDATE FAILED: ${res.status}`);
+  if (!res.ok) throw new Error(`Failed to update batch: ${res.status}`);
   return await res.json();
 };
 
-// DELETE BATCH
 export const deleteBatch = async (id) => {
-  const res = await fetch(API_ENDPOINTS.DELETE_BATCH(id), {
-    method: "DELETE",
-    headers: getHeaders(),
-  });
-  if (!res.ok) throw new Error(`DELETE FAILED: ${res.status}`);
+  const res = await fetch(API_ENDPOINTS.DELETE_BATCH(id), { method: "DELETE", headers: getHeaders() });
+  if (!res.ok) throw new Error(`Failed to delete batch: ${res.status}`);
 };
 
-// TOGGLE STATUS
-export const toggleBatchStatus = async (id, status) => {
-  const res = await fetch(`${API_ENDPOINTS.GET_BATCH}/${id}/status?status=${status}`, {
-    method: "PUT",
-    headers: getHeaders(),
-  });
-  if (!res.ok) throw new Error("Status update failed");
+export const toggleBatchStatus = async (id) => {
+  const res = await fetch(API_ENDPOINTS.TOGGLE_BATCH(id), { method: "PATCH", headers: getHeaders() });
+  if (!res.ok) throw new Error("Status toggle failed");
   return await res.json();
 };

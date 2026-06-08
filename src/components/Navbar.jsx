@@ -1,42 +1,57 @@
 import { useState, useRef, useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa";
-import "../styles/Navbar.css"; 
-function Navbar() {
+import { FiLogOut, FiUser, FiChevronDown } from "react-icons/fi";
+import { useAuth } from "../hooks/useAuth";
+import "../styles/Navbar.css";
+
+export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef();
+  const ref = useRef();
+  const { handleLogout, admin } = useAuth();
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-  };
+  const initials = admin?.name ? admin.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "AD";
 
   return (
-    <div className="navbar">
-      <h2>SMS</h2>
-      <div className="profile" ref={dropdownRef}>
-        <FaUserCircle
-          className="profile-icon"
-          onClick={() => setOpen(!open)}
-        />
-        {open && (
-          <div className="dropdown">
-            <p>Forgot Password</p>
-            <p onClick={handleLogout}>Logout</p>
-          </div>
-        )}
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <div className="navbar-logo">S</div>
+        <span className="navbar-name">Student<span>MS</span></span>
       </div>
-    </div>
+
+      <div className="navbar-right">
+        <div className="navbar-profile" ref={ref}>
+          <div className="profile-trigger" onClick={() => setOpen(!open)}>
+            <div className="profile-avatar">{initials}</div>
+            <span className="profile-name">{admin?.name || "Admin"}</span>
+            <FiChevronDown style={{ fontSize: 13, color: "var(--text-muted)" }} />
+          </div>
+
+          {open && (
+            <div className="dropdown-menu">
+              <div className="dropdown-item">
+                <FiUser /> Profile
+              </div>
+              <div className="dropdown-divider" />
+              <div className="dropdown-item danger" onClick={handleLogout}>
+                <FiLogOut /> Logout
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 }
 
-export default Navbar;
+
+
+
+
+
+
+

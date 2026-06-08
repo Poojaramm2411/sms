@@ -7,12 +7,12 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import Courses from "./pages/Courses";
-import StudentDetail from "./pages/StudentDetail"; // detail page
+import StudentDetail from "./pages/master/StudentDetail"; // detail page
 import Batches from "./pages/Batches"; // batches page
-import Instructors from "./pages/Instructors";
+import Instructors from "./pages/master/Instructors";
 import "./App.css";
-import CourseDetail from "./pages/CourseDetail";
-import BatchDetail from "./pages/BatchDetail";
+import CourseDetail from "./pages/master/CourseDetail";
+import BatchDetail from "./pages/master/BatchDetail";
 // Layout
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";

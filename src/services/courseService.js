@@ -8,46 +8,40 @@ const getHeaders = () => {
   };
 };
 
-// GET COURSES
-export const getCourses = async () => {
-  const res = await fetch(API_ENDPOINTS.GET_COURSE, {
-    method: "GET",
-    headers: getHeaders(),
-  });
-
-  if (!res.ok) throw new Error("Fetch course failed");
+export const getCourses = async (page = 0, size = 10, search = "", status = "", batchId = "") => {
+  let url = `${API_ENDPOINTS.GET_COURSE}?page=${page}&size=${size}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (status) url += `&status=${status}`;
+  if (batchId) url += `&batchId=${batchId}`;
+  const res = await fetch(url, { method: "GET", headers: getHeaders() });
+  if (!res.ok) throw new Error("Fetch courses failed");
   const json = await res.json();
-  console.log("RAW JSON:", json);
-
-  return Array.isArray(json) ? json
-       : Array.isArray(json.content) ? json.content  // ✅ Spring Page
-       : Array.isArray(json.data) ? json.data
-       : [];
+  return {
+    content: Array.isArray(json.content) ? json.content : [],
+    totalPages: json.totalPages || 0,
+    totalElements: json.totalElements || 0,
+    currentPage: json.number || 0,
+  };
 };
 
-// ADD COURSE
-export const addCourse = async (data) => {
+export const getCourseById = async (id) => {
+  const res = await fetch(API_ENDPOINTS.GET_COURSE_BY_ID(id), { method: "GET", headers: getHeaders() });
+  if (!res.ok) throw new Error("Fetch course failed");
+  return await res.json();
+};
+
+export const createCourse = async (data) => {
   const res = await fetch(API_ENDPOINTS.POST_COURSE, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Add course failed");
+  if (!res.ok) throw new Error("Create course failed");
   return await res.json();
 };
 
-// DELETE COURSE
-export const deleteCourse = async (id) => {
-  const res = await fetch(`${API_ENDPOINTS.DELETE_COURSE}/${id}`, {
-    method: "DELETE",
-    headers: getHeaders(),
-  });
-  if (!res.ok) throw new Error("Delete course failed");
-};
-
-// UPDATE COURSE
 export const updateCourse = async (id, data) => {
-  const res = await fetch(`${API_ENDPOINTS.UPDATE_COURSE}/${id}`, {
+  const res = await fetch(API_ENDPOINTS.UPDATE_COURSE(id), {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -56,12 +50,13 @@ export const updateCourse = async (id, data) => {
   return await res.json();
 };
 
-// TOGGLE STATUS  ✅ new
-export const toggleCourseStatus = async (id, status) => {
-  const res = await fetch(`${API_ENDPOINTS.GET_COURSE}/${id}/status?status=${status}`, {
-    method: "PUT",
-    headers: getHeaders(),
-  });
-  if (!res.ok) throw new Error("Status update failed");
+export const deleteCourse = async (id) => {
+  const res = await fetch(API_ENDPOINTS.DELETE_COURSE(id), { method: "DELETE", headers: getHeaders() });
+  if (!res.ok) throw new Error("Delete course failed");
+};
+
+export const toggleCourseStatus = async (id) => {
+  const res = await fetch(API_ENDPOINTS.TOGGLE_COURSE(id), { method: "PATCH", headers: getHeaders() });
+  if (!res.ok) throw new Error("Status toggle failed");
   return await res.json();
 };
