@@ -1,124 +1,132 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import studyImg from "../assets/images/std_login.png";
-import { loginUser } from "../services/authService";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import {
+  Box, Button, TextField, Typography, Paper,
+  InputAdornment, CircularProgress, Divider
+} from "@mui/material";
+import { Email, Lock, ArrowForward, School } from "@mui/icons-material";
+import { login } from "../store/slices/authSlice";
 
-function Login() {
+export default function Login() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading } = useSelector(s => s.auth);
+  const [form, setForm] = useState({ email: "", password: "" });
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-  const [passwordHint, setPasswordHint] = useState("");
-
-  // PASSWORD VALIDATION
-  const validatePassword = (password) => {
-    const rules = [];
-
-    if (password.length < 8) rules.push("At least 8 characters");
-    if (!/[A-Z]/.test(password)) rules.push("One uppercase letter");
-    if (!/[a-z]/.test(password)) rules.push("One lowercase letter");
-    if (!/[!@#$%^&*]/.test(password)) rules.push("One special character");
-
-    return rules;
-  };
-
-  //  HANDLE PASSWORD CHANGE
-  const handlePasswordChange = (e) => {
-    const value = e.target.value;
-    setForm({ ...form, password: value });
-
-    const errors = validatePassword(value);
-    setPasswordHint(errors.join(", "));
-
-    //  Show warning toast only if invalid
-    if (value && errors.length > 0) {
-      toast.dismiss();
-      toast.warning("Weak Password ");
-    }
-  };
-
-  //  HANDLE LOGIN
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const data = await loginUser(form);
-      console.log("LOGIN RESPONSE:", JSON.stringify(data)); 
-
-      const token = data.token || data.data?.token || data.data;
-
-      if (token && typeof token === "string") {
-        localStorage.setItem("token", token);
-
-        toast.success("Login Successful ");
-
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1500);
-      } else {
-        toast.error("Invalid login response");
-      }
-    } catch (err) {
-      toast.error(err.message || "Login failed ❌");
-      
+    const result = await dispatch(login(form));
+    if (login.fulfilled.match(result)) {
+      toast.success("Welcome back!");
+      navigate("/dashboard");
+    } else {
+      toast.error(result.payload || "Login failed");
     }
   };
 
   return (
-    <div className="login-container">
-      
-      {/* LEFT IMAGE */}
-      <div className="login-image">
-        <img src={studyImg} alt="study" />
-      </div>
+    <Box sx={{ display: "flex", height: "100vh", bgcolor: "background.default" }}>
+      {/* LEFT */}
+      <Box sx={{
+        flex: 1, display: { xs: "none", md: "flex" }, flexDirection: "column",
+        justifyContent: "center", alignItems: "center", px: 8,
+        background: "linear-gradient(145deg,#0f0f1a 0%,#1a1040 50%,#0c1a40 100%)",
+        position: "relative", overflow: "hidden",
+      }}>
+        {/* glow effects */}
+        <Box sx={{ position: "absolute", width: 500, height: 500, borderRadius: "50%",
+          background: "radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%)",
+          top: -100, left: -100 }} />
+        <Box sx={{ position: "absolute", width: 400, height: 400, borderRadius: "50%",
+          background: "radial-gradient(circle,rgba(6,182,212,0.1) 0%,transparent 70%)",
+          bottom: -100, right: -50 }} />
 
-      {/* RIGHT FORM */}
-      <div className="login-form">
-        <div className="login-card">
-          
-          <h2>Student Management</h2>
+        <Box sx={{ position: "relative", zIndex: 1, textAlign: "center", maxWidth: 420 }}>
+          <Box sx={{
+            display: "inline-flex", alignItems: "center", gap: 1, px: 2, py: 0.75,
+            bgcolor: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)",
+            borderRadius: "100px", mb: 4,
+          }}>
+            <School sx={{ fontSize: 14, color: "primary.light" }} />
+            <Typography variant="caption" sx={{ color: "primary.light", fontWeight: 700, letterSpacing: 0.5 }}>
+              Student Management System
+            </Typography>
+          </Box>
 
-          <form onSubmit={handleSubmit}>
-            
-            <input
-              type="email"
-              placeholder="Enter your email"
-              required
-              onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
-              }
+          <Typography variant="h3" fontWeight={800} letterSpacing={-1.5} mb={2} lineHeight={1.1}>
+            Manage your{" "}
+            <Box component="span" sx={{
+              background: "linear-gradient(135deg,#818cf8,#06b6d4)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>
+              students smarter
+            </Box>
+          </Typography>
+
+          <Typography color="text.secondary" mb={5} lineHeight={1.7}>
+            A complete platform to manage batches, courses, instructors, and students in one place.
+          </Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 5 }}>
+            {[["500+", "Students"], ["50+", "Courses"], ["20+", "Instructors"]].map(([num, label]) => (
+              <Box key={label} textAlign="center">
+                <Typography variant="h5" fontWeight={800}>{num}</Typography>
+                <Typography variant="caption" color="text.secondary">{label}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* RIGHT */}
+      <Box sx={{
+        width: { xs: "100%", md: 460 }, display: "flex", alignItems: "center",
+        justifyContent: "center", px: 4,
+        bgcolor: "background.paper", borderLeft: "1px solid", borderColor: "divider",
+      }}>
+        <Box sx={{ width: "100%", maxWidth: 380 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 4 }}>
+            <Box sx={{
+              width: 42, height: 42, borderRadius: 2,
+              background: "linear-gradient(135deg,#6366f1,#06b6d4)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <School sx={{ color: "#fff", fontSize: 22 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={700}>Sign in</Typography>
+              <Typography variant="caption" color="text.secondary">Enter your credentials</Typography>
+            </Box>
+          </Box>
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <TextField
+              fullWidth label="Email Address" type="email" required
+              value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+              InputProps={{ startAdornment: <InputAdornment position="start"><Email sx={{ fontSize: 18, color: "text.disabled" }} /></InputAdornment> }}
+            />
+            <TextField
+              fullWidth label="Password" type="password" required
+              value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+              InputProps={{ startAdornment: <InputAdornment position="start"><Lock sx={{ fontSize: 18, color: "text.disabled" }} /></InputAdornment> }}
             />
 
-            <input
-              type="password"
-              placeholder="Enter your password"
-              required
-              onChange={handlePasswordChange}
-            />
+            <Box sx={{ textAlign: "right", mt: -1 }}>
+              <Typography variant="caption" sx={{ color: "primary.light", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>
+                Forgot Password?
+              </Typography>
+            </Box>
 
-            {/* PASSWORD RULE MESSAGE */}
-            {form.password && passwordHint && (
-              <p className="password-hint">{passwordHint}</p>
-            )}
-
-            <button type="submit">Login</button>
-
-            {/* FORGOT PASSWORD */}
-            <div className="extra-links">
-              <span className="forgot">Forgot Password?</span>
-            </div>
-
-          </form>
-
-          {/* ERROR TEXT */}
-          {/* {error && <p className="error-text">{error}</p>} */}
-        </div>
-      </div>
-    </div>
+            <Button type="submit" variant="contained" size="large" fullWidth
+              disabled={loading} endIcon={loading ? <CircularProgress size={16} color="inherit" /> : <ArrowForward />}
+              sx={{ py: 1.5, fontSize: 15, fontWeight: 600 }}>
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }
-
-export default Login;

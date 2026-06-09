@@ -1,50 +1,58 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify"; //  for toast
-import "react-toastify/dist/ReactToastify.css"; //  toast css
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Provider } from "react-redux";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { store } from "./store/index.jsx";
+import theme from "./Theme.jsx";
 
-// Pages
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Students from "./pages/Students";
-import Courses from "./pages/Courses";
-import StudentDetail from "./pages/master/StudentDetail"; // detail page
-import Batches from "./pages/Batches"; // batches page
-import Instructors from "./pages/master/Instructors";
-import "./App.css";
-import CourseDetail from "./pages/master/CourseDetail";
-import BatchDetail from "./pages/master/BatchDetail";
-// Layout
-import Layout from "./components/Layout";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ProtectedRoute from "./Routes/Protectedroute.jsx";
+import PublicRoute from "./Routes/Publicroute.jsx";
+import Layout from "./components/Layout.jsx";
 
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Students from "./pages/master/Students.jsx";
+import Courses from "./pages/master/Courses.jsx";
+import Batches from "./pages/Batches.jsx";
+import Instructors from "./pages/master/Instructors.jsx";
 
-function App() {
+import "./styles/Global.css";
+
+export default function App() {
   return (
-    <ErrorBoundary>
-      <Routes>
-        {/* Public Route */}
-        <Route path="/" element={<Login />} />
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-        {/* Protected Routes with Layout */}
-        <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/student-detail" element={<StudentDetail />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/batches" element={<Batches />} />
-          <Route path="/instructors" element={<Instructors />} />
-          <Route path="/course-detail" element={<CourseDetail />} />
-          <Route path="/batch-detail" element={<BatchDetail />} />
-        </Route>
 
-        {/* Fallback Route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard"   element={<Dashboard />} />
+            <Route path="students"    element={<Students />} />
+            <Route path="courses"     element={<Courses />} />
+            <Route path="batches"     element={<Batches />} />
+            <Route path="instructors" element={<Instructors />} />
+          </Route>
 
-      {/* Toast Container (IMPORTANT) */}
-      <ToastContainer position="top-right" autoClose={3000} />
-    </ErrorBoundary>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="dark"
+          toastStyle={{
+            background: "#1c2537",
+            border: "1px solid rgba(255,255,255,0.06)",
+            color: "#e8edf5",
+          }}
+        />
+        </BrowserRouter>
+      </ThemeProvider>
+    </Provider>
   );
 }
-
-export default App;

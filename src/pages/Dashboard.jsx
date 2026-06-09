@@ -1,77 +1,118 @@
 import { useEffect, useState } from "react";
-import { FaUserGraduate, FaBook, FaLayerGroup, FaGift } from "react-icons/fa";
-import "../App.css";
-
-const BASE_URL = "https://gwk8h3dw-8080.inc1.devtunnels.ms";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { FiUsers, FiBook, FiLayers, FiUserCheck, FiArrowRight } from "react-icons/fi";
+import { fetchBatches } from "../store/slices/batchSlice";
+import { fetchStudents } from "../store/slices/studentSlice";
+import { fetchCourses } from "../store/slices/courseSlice";
+import { fetchInstructors } from "../store/slices/instructorSlice";
+import "../styles/Dashboard.css";
+import "../styles/Table.css";
 
 export default function Dashboard() {
-  const [counts, setCounts] = useState({
-    students: 0,
-    courses: 0,
-    batches: 0,
-    offers: 0,
-  });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { totalElements: studentCount, items: recentStudents } = useSelector((s) => s.students);
+  const { totalElements: courseCount } = useSelector((s) => s.courses);
+  const { totalElements: batchCount, items: recentBatches } = useSelector((s) => s.batches);
+  const { totalElements: instructorCount } = useSelector((s) => s.instructors);
 
   useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const token = localStorage.getItem("token");
+    dispatch(fetchStudents({ page: 0, size: 5 }));
+    dispatch(fetchCourses({ page: 0, size: 5 }));
+    dispatch(fetchBatches({ page: 0, size: 5 }));
+    dispatch(fetchInstructors({ page: 0, size: 5 }));
+  }, [dispatch]);
 
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        };
-
-        const [stuRes, courseRes, batchRes, offerRes] = await Promise.all([
-          fetch(`${BASE_URL}/Student`, { headers }),
-          fetch(`${BASE_URL}/Course`, { headers }),
-          fetch(`${BASE_URL}/Batch`, { headers }),
-          fetch(`${BASE_URL}/Offer`, { headers }),
-        ]);
-
-        const students = await stuRes.json();
-        const courses = await courseRes.json();
-        const batches = await batchRes.json();
-        const offers = await offerRes.json();
-
-        setCounts({
-          students: students.length || 0,
-          courses: courses.length || 0,
-          batches: batches.length || 0,
-          offers: offers.length || 0,
-        });
-      } catch (error) {
-        console.error("Dashboard Error:", error);
-      }
-    };
-
-    fetchCounts(); //  now perfectly safe
-  }, []);
+  const stats = [
+    { label: "Students", value: studentCount, icon: <FiUsers />, color: "blue", path: "/students" },
+    { label: "Courses", value: courseCount, icon: <FiBook />, color: "green", path: "/courses" },
+    { label: "Batches", value: batchCount, icon: <FiLayers />, color: "amber", path: "/batches" },
+    { label: "Instructors", value: instructorCount, icon: <FiUserCheck />, color: "rose", path: "/instructors" },
+  ];
 
   return (
-    <div className="dashboard-container">
-      <div className="card blue">
-        <FaUserGraduate className="icon" />
-        <h2>{counts.students}</h2>
-        <p>Students</p>
+    <div className="dashboard fade-in">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Overview of your student management system</p>
+        </div>
       </div>
 
-      <div className="card green">
-        <FaBook className="icon" />
-        <h2>{counts.courses}</h2>
-        <p>Courses</p>
+      <div className="dashboard-grid">
+        {stats.map((s) => (
+          <div key={s.label} className={`stat-card ${s.color}`} onClick={() => navigate(s.path)} style={{ cursor: "pointer" }}>
+            <div className="stat-icon">{s.icon}</div>
+            <div className="stat-info">
+              <div className="stat-value">{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+            <FiArrowRight style={{ marginLeft: "auto", color: "var(--text-muted)", fontSize: 16 }} />
+          </div>
+        ))}
       </div>
 
-      <div className="card purple">
-        <FaLayerGroup className="icon" />
-        <h2>{counts.batches}</h2>
-        <p>Batches</p>
-      </div>
+      <div className="dashboard-lower">
+        {/* Recent Students */}
+        <div className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 className="dashboard-section-title">Recent Students</h3>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/students")}>View All</button>
+          </div>
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentStudents.length === 0 ? (
+                  <tr><td colSpan="3" style={{ textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No data</td></tr>
+                ) : recentStudents.slice(0, 5).map((s) => (
+                  <tr key={s.id}>
+                    <td className="cell-name">{s.name}</td>
+                    <td><span className="cell-code">{s.studentCode}</span></td>
+                    <td><span className={`badge ${s.status === "ACTIVE" ? "badge-active" : "badge-inactive"}`}>{s.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      <div className="card yellow">
-        <FaGift className="icon" />
-        <h2>{counts.offers}</h2>
-        <p>Offers</p>
+        {/* Recent Batches */}
+        <div className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h3 className="dashboard-section-title">Recent Batches</h3>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/batches")}>View All</button>
+          </div>
+          <div className="table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Batch Name</th>
+                  <th>Instructor</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentBatches.length === 0 ? (
+                  <tr><td colSpan="3" style={{ textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No data</td></tr>
+                ) : recentBatches.slice(0, 5).map((b) => (
+                  <tr key={b.id}>
+                    <td className="cell-name">{b.batchName}</td>
+                    <td>{b.instructorName || "—"}</td>
+                    <td><span className={`badge ${b.status === "ACTIVE" ? "badge-active" : "badge-inactive"}`}>{b.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
