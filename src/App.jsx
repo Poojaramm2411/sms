@@ -12,9 +12,9 @@ import Layout from "./components/Layout.jsx";
 
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Batches from "./pages/master/Batches.jsx";
 import Students from "./pages/master/Students.jsx";
 import Courses from "./pages/master/Courses.jsx";
-import Batches from "./pages/Batches.jsx";
 import Instructors from "./pages/master/Instructors.jsx";
 
 import "./styles/Global.css";

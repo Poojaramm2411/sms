@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiUsers, FiBook, FiLayers, FiUserCheck, FiArrowRight } from "react-icons/fi";
@@ -7,28 +7,28 @@ import { fetchStudents } from "../store/slices/studentSlice";
 import { fetchCourses } from "../store/slices/courseSlice";
 import { fetchInstructors } from "../store/slices/instructorSlice";
 import "../styles/Dashboard.css";
-import "../styles/Table.css";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { totalElements: studentCount, items: recentStudents } = useSelector((s) => s.students);
-  const { totalElements: courseCount } = useSelector((s) => s.courses);
-  const { totalElements: batchCount, items: recentBatches } = useSelector((s) => s.batches);
+
+  const { totalElements: studentCount }    = useSelector((s) => s.students);
+  const { totalElements: courseCount }     = useSelector((s) => s.courses);
+  const { totalElements: batchCount }      = useSelector((s) => s.batches);
   const { totalElements: instructorCount } = useSelector((s) => s.instructors);
 
   useEffect(() => {
-    dispatch(fetchStudents({ page: 0, size: 5 }));
-    dispatch(fetchCourses({ page: 0, size: 5 }));
-    dispatch(fetchBatches({ page: 0, size: 5 }));
-    dispatch(fetchInstructors({ page: 0, size: 5 }));
+    dispatch(fetchStudents({ page: 0, size: 1 }));
+    dispatch(fetchCourses({ page: 0, size: 1 }));
+    dispatch(fetchBatches({ page: 0, size: 1 }));
+    dispatch(fetchInstructors({ page: 0, size: 1 }));
   }, [dispatch]);
 
   const stats = [
-    { label: "Students", value: studentCount, icon: <FiUsers />, color: "blue", path: "/students" },
-    { label: "Courses", value: courseCount, icon: <FiBook />, color: "green", path: "/courses" },
-    { label: "Batches", value: batchCount, icon: <FiLayers />, color: "amber", path: "/batches" },
-    { label: "Instructors", value: instructorCount, icon: <FiUserCheck />, color: "rose", path: "/instructors" },
+    { label: "Students",    value: studentCount,    icon: <FiUsers />,     color: "blue",  path: "/students" },
+    { label: "Courses",     value: courseCount,     icon: <FiBook />,      color: "green", path: "/courses" },
+    { label: "Batches",     value: batchCount,      icon: <FiLayers />,    color: "amber", path: "/batches" },
+    { label: "Instructors", value: instructorCount, icon: <FiUserCheck />, color: "rose",  path: "/instructors" },
   ];
 
   return (
@@ -42,7 +42,12 @@ export default function Dashboard() {
 
       <div className="dashboard-grid">
         {stats.map((s) => (
-          <div key={s.label} className={`stat-card ${s.color}`} onClick={() => navigate(s.path)} style={{ cursor: "pointer" }}>
+          <div
+            key={s.label}
+            className={`stat-card ${s.color}`}
+            onClick={() => navigate(s.path)}
+            style={{ cursor: "pointer" }}
+          >
             <div className="stat-icon">{s.icon}</div>
             <div className="stat-info">
               <div className="stat-value">{s.value}</div>
@@ -51,68 +56,6 @@ export default function Dashboard() {
             <FiArrowRight style={{ marginLeft: "auto", color: "var(--text-muted)", fontSize: 16 }} />
           </div>
         ))}
-      </div>
-
-      <div className="dashboard-lower">
-        {/* Recent Students */}
-        <div className="card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 className="dashboard-section-title">Recent Students</h3>
-            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/students")}>View All</button>
-          </div>
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentStudents.length === 0 ? (
-                  <tr><td colSpan="3" style={{ textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No data</td></tr>
-                ) : recentStudents.slice(0, 5).map((s) => (
-                  <tr key={s.id}>
-                    <td className="cell-name">{s.name}</td>
-                    <td><span className="cell-code">{s.studentCode}</span></td>
-                    <td><span className={`badge ${s.status === "ACTIVE" ? "badge-active" : "badge-inactive"}`}>{s.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Recent Batches */}
-        <div className="card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 className="dashboard-section-title">Recent Batches</h3>
-            <button className="btn btn-secondary btn-sm" onClick={() => navigate("/batches")}>View All</button>
-          </div>
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Batch Name</th>
-                  <th>Instructor</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentBatches.length === 0 ? (
-                  <tr><td colSpan="3" style={{ textAlign: "center", padding: 24, color: "var(--text-muted)" }}>No data</td></tr>
-                ) : recentBatches.slice(0, 5).map((b) => (
-                  <tr key={b.id}>
-                    <td className="cell-name">{b.batchName}</td>
-                    <td>{b.instructorName || "—"}</td>
-                    <td><span className={`badge ${b.status === "ACTIVE" ? "badge-active" : "badge-inactive"}`}>{b.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
   );

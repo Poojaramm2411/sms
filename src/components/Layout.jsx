@@ -15,7 +15,9 @@ const DRAWER_WIDTH = 240;
 function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isMasterPath = ["/students", "/courses", "/instructors"].some(p =>
+
+  // ✅ batches added to master path
+  const isMasterPath = ["/batches", "/students", "/courses", "/instructors"].some(p =>
     location.pathname.startsWith(p)
   );
   const [masterOpen, setMasterOpen] = useState(isMasterPath);
@@ -40,22 +42,27 @@ function Sidebar() {
       "& .MuiDrawer-paper": { width: DRAWER_WIDTH, boxSizing: "border-box", top: 64 }
     }}>
       <Box sx={{ overflow: "auto", pt: 2, pb: 2 }}>
+
+        {/* Navigation */}
         <Typography variant="caption" sx={{ px: 2.5, color: "text.disabled",
           fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
           Navigation
         </Typography>
 
         <List dense sx={{ mt: 1 }}>
+          {/* ✅ Dashboard only — Batches removed from here */}
           <NavItem icon={<Dashboard fontSize="small" />} label="Dashboard" path="/dashboard" />
-          <NavItem icon={<Layers fontSize="small" />} label="Batches" path="/batches" />
+        </List>
 
-          <Divider sx={{ my: 1, mx: 2 }} />
+        <Divider sx={{ my: 1, mx: 2 }} />
 
-          <Typography variant="caption" sx={{ px: 2.5, color: "text.disabled",
-            fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
-            Master
-          </Typography>
+        {/* Manage */}
+        <Typography variant="caption" sx={{ px: 2.5, color: "text.disabled",
+          fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>
+          Manage
+        </Typography>
 
+        <List dense sx={{ mt: 1 }}>
           <ListItemButton onClick={() => setMasterOpen(!masterOpen)}
             sx={{ mx: 1, borderRadius: 2, mt: 0.5, mb: 0.5 }}>
             <ListItemIcon sx={{ minWidth: 36, color: "text.secondary" }}>
@@ -63,18 +70,22 @@ function Sidebar() {
             </ListItemIcon>
             <ListItemText primary="Master"
               primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }} />
-            {masterOpen ? <ExpandLess fontSize="small" sx={{ color: "text.secondary" }} />
+            {masterOpen
+              ? <ExpandLess fontSize="small" sx={{ color: "text.secondary" }} />
               : <ExpandMore fontSize="small" sx={{ color: "text.secondary" }} />}
           </ListItemButton>
 
           <Collapse in={masterOpen} timeout="auto" unmountOnExit>
             <List dense disablePadding sx={{ pl: 2 }}>
-              <NavItem icon={<People fontSize="small" />} label="Students" path="/students" />
-              <NavItem icon={<MenuBook fontSize="small" />} label="Courses" path="/courses" />
-              <NavItem icon={<Person fontSize="small" />} label="Instructors" path="/instructors" />
+              {/* ✅ Batches now inside Master */}
+              <NavItem icon={<Layers fontSize="small" />}   label="Batches"     path="/batches" />
+              <NavItem icon={<People fontSize="small" />}   label="Students"    path="/students" />
+              <NavItem icon={<MenuBook fontSize="small" />} label="Courses"     path="/courses" />
+              <NavItem icon={<Person fontSize="small" />}   label="Instructors" path="/instructors" />
             </List>
           </Collapse>
         </List>
+
       </Box>
     </Drawer>
   );

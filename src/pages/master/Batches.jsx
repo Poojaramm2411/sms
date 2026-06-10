@@ -3,13 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FiPlus, FiEye, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
-import { fetchBatches, addBatch, editBatch, removeBatch, toggleBatch } from "../store/Slices/batchSlice";
-import { fetchInstructors } from "../store/Slices/instructorSlice";
-import BatchModal from "../components/modals/BatchModal";
-import StatusBadge from "../components/ui/StatusBadge";
-import Pagination from "../components/ui/Pagination";
-import { usePagination } from "../hooks/usePagination";
-import "../styles/Table.css";
+import { fetchBatches, addBatch, editBatch, removeBatch, toggleBatch } from "../../store/Slices/batchSlice";
+import { fetchInstructors } from "../../store/Slices/instructorSlice";
+import BatchModal from "../../components/modals/BatchModal";
+import StatusBadge from "../../components/ui/StatusBadge";
+import Pagination from "../../components/ui/Pagination";
+import { usePagination } from "../../hooks/usePagination";
+import "../../styles/Table.css";
 
 export default function Batches() {
   const dispatch = useDispatch();
