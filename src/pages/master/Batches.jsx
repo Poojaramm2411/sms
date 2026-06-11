@@ -84,12 +84,12 @@ export default function Batches() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Batch Name</th>
-              <th>Code</th>
+              <th> Batch Code</th>
               <th>Start Date</th>
               <th>End Date</th>
-              <th>Instructor</th>
+              <th>Instructor Name</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -101,7 +101,7 @@ export default function Batches() {
               <tr><td colSpan="8" style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>No batches found</td></tr>
             ) : items.map((b, i) => (
               <tr key={b.id}>
-                <td className="cell-id">{currentPage * size + i + 1}</td>
+                <td className="cell-id">{page * size + i + 1}</td>
                 <td className="cell-name">{b.batchName}</td>
                 <td><span className="cell-code">{b.batchCode}</span></td>
                 <td>{b.startDate || "—"}</td>

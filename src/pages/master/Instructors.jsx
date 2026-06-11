@@ -81,7 +81,7 @@ export default function Instructors() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>

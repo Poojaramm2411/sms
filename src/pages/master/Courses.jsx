@@ -84,7 +84,7 @@ export default function Courses() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Course Name</th>
               <th>Code</th>
               <th>Department</th>

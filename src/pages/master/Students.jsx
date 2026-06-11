@@ -84,7 +84,7 @@ export default function Students() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Id</th>
               <th>Name</th>
               <th>Email</th>
               <th>Age</th>
@@ -102,7 +102,7 @@ export default function Students() {
               <tr><td colSpan="9" style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>No students found</td></tr>
             ) : items.map((s, i) => (
               <tr key={s.id}>
-                <td className="cell-id">{currentPage * size + i + 1}</td>
+                <td className="cell-id">{page * size + i + 1}</td>
                 <td className="cell-name">{s.name}</td>
                 <td className="cell-email">{s.email}</td>
                 <td>{s.age || "—"}</td>
