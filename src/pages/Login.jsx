@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -12,6 +12,7 @@ import { login } from "../store/slices/authSlice";
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ Added
   const { loading } = useSelector(s => s.auth);
   const [form, setForm] = useState({ email: "", password: "" });
 
@@ -20,7 +21,8 @@ export default function Login() {
     const result = await dispatch(login(form));
     if (login.fulfilled.match(result)) {
       toast.success("Welcome back!");
-      navigate("/dashboard");
+      const from = location.state?.from?.pathname || "/dashboard"; // ✅ Added
+      navigate(from, { replace: true }); // ✅ Changed
     } else {
       toast.error(result.payload || "Login failed");
     }

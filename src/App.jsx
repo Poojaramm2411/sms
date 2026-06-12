@@ -30,7 +30,7 @@ export default function App() {
 
 
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route index element={<Navigate to="/login" replace />} />
             <Route path="dashboard"   element={<Dashboard />} />
             <Route path="students"    element={<Students />} />
             <Route path="courses"     element={<Courses />} />
