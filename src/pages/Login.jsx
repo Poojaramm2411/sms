@@ -7,7 +7,7 @@ import {
   InputAdornment, CircularProgress, Divider
 } from "@mui/material";
 import { Email, Lock, ArrowForward, School } from "@mui/icons-material";
-import { login } from "../store/slices/authSlice";
+import { login } from "../store/Slices/authSlice";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -21,8 +21,8 @@ export default function Login() {
     const result = await dispatch(login(form));
     if (login.fulfilled.match(result)) {
       toast.success("Welcome back!");
-      const from = location.state?.from?.pathname || "/dashboard"; // ✅ Added
-      navigate(from, { replace: true }); // ✅ Changed
+    const from = location.state?.from?.pathname || "/dashboard";
+setTimeout(() => navigate(from, { replace: true }), 100);// ✅ Changed
     } else {
       toast.error(result.payload || "Login failed");
     }
