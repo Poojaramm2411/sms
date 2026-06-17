@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiLayers } from "react-icons/fi";
-import StatusBadge from "../components/ui/StatusBadge";
-import "../styles/Detail.css";
+import StatusBadge from "../../components/ui/StatusBadge";
+import "../../styles/Detailpage.css";
 
 export default function BatchDetail() {
   const { state } = useLocation();

@@ -17,6 +17,11 @@ import Students from "./pages/master/Students.jsx";
 import Courses from "./pages/master/Courses.jsx";
 import Instructors from "./pages/master/Instructors.jsx";
 
+import BatchDetail from "./pages/master/BatchDetail.jsx";
+import StudentDetail from "./pages/master/StudentDetail.jsx";
+import CourseDetail from "./pages/master/CourseDetail.jsx";
+import InstructorDetail from "./pages/master/InstructorDetail.jsx";
+
 import "./styles/Global.css";
 
 export default function App() {
@@ -32,10 +37,18 @@ export default function App() {
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/login" replace />} />
             <Route path="dashboard"   element={<Dashboard />} />
+
             <Route path="students"    element={<Students />} />
+            <Route path="students/:id" element={<StudentDetail />} />
+
             <Route path="courses"     element={<Courses />} />
+            <Route path="courses/:id" element={<CourseDetail />} />
+
             <Route path="batches"     element={<Batches />} />
+            <Route path="batches/:id" element={<BatchDetail />} />
+
             <Route path="instructors" element={<Instructors />} />
+            <Route path="instructors/:id" element={<InstructorDetail />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

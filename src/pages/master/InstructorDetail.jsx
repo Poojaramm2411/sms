@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiUserCheck } from "react-icons/fi";
-import StatusBadge from "../components/ui/StatusBadge";
-import "../styles/Detail.css";
+import StatusBadge from "../../components/ui/StatusBadge";
+import "../../styles/Detailpage.css";
 
 export default function InstructorDetail() {
   const { state } = useLocation();
@@ -15,14 +15,12 @@ export default function InstructorDetail() {
     </div>
   );
 
-  const initials = instructor.name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "IN";
-
   return (
     <div className="detail-page fade-in">
       <button className="detail-back" onClick={() => navigate(-1)}><FiArrowLeft /> Back to Instructors</button>
       <div className="detail-card">
         <div className="detail-card-header">
-          <div className="detail-avatar">{initials}</div>
+          <div className="detail-avatar"><FiUserCheck /></div>
           <div>
             <div className="detail-main-name">{instructor.name}</div>
             <div className="detail-main-sub">{instructor.email}</div>
@@ -33,7 +31,7 @@ export default function InstructorDetail() {
           <div className="detail-grid">
             {[
               { label: "Instructor ID", value: instructor.id },
-              { label: "Email", value: instructor.email },
+              { label: "Email", value: instructor.email || "—" },
               { label: "Phone", value: instructor.phone || "—" },
               { label: "Specialization", value: instructor.specialization || "—" },
               { label: "Status", value: <StatusBadge status={instructor.status} /> },

@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FiUsers, FiBook, FiLayers, FiUserCheck, FiArrowRight } from "react-icons/fi";
 import { fetchBatches } from "../store/slices/batchSlice";
-import { fetchStudents } from "../store/slices/studentSlice";
-import { fetchCourses } from "../store/slices/courseSlice";
-import { fetchInstructors } from "../store/slices/instructorSlice";
+import { fetchStudents } from "../store/Slices/studentSlice";
+import { fetchCourses } from "../store/Slices/courseSlice";
+import { fetchInstructors } from "../store/Slices/instructorSlice";
+
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
@@ -28,7 +29,7 @@ export default function Dashboard() {
     { label: "Students",    value: studentCount,    icon: <FiUsers />,     color: "blue",  path: "/students" },
     { label: "Courses",     value: courseCount,     icon: <FiBook />,      color: "green", path: "/courses" },
     { label: "Batches",     value: batchCount,      icon: <FiLayers />,    color: "amber", path: "/batches" },
-    { label: "Instructors", value: instructorCount, icon: <FiUserCheck />, color: "rose",  path: "/instructors" },
+    { label: "Instructors", value: instructorCount, icon: <FiUserCheck />, color: "red",   path: "/instructors" },
   ];
 
   return (
