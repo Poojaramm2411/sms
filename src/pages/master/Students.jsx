@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiPlus, FiEye, FiEdit2, FiTrash2, FiSearch } from "react-icons/fi";
+import { FiPlus, FiEye, FiEdit2, FiTrash2, FiSearch, FiUpload, FiDownload } from "react-icons/fi";
 import { fetchStudents, addStudent, editStudent, removeStudent, toggleStudent } from "../../store/Slices/studentSlice";
 import { fetchBatches } from "../../store/Slices/batchSlice";
+import { exportStudentsPdf, exportStudentsExcel, bulkUploadStudents } from "../../services/exportService";
 import StudentModal from "../../components/modals/StudentModal";
 import StatusBadge from "../../components/ui/StatusBadge";
 import Pagination from "../../components/ui/Pagination";
@@ -60,19 +61,68 @@ export default function Students() {
     await dispatch(toggleStudent(id));
     dispatch(fetchStudents({ page, size, search }));
   };
+  const fileInputRef = useRef();
+const [uploading, setUploading] = useState(false);
+
+const handleBulkUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setUploading(true);
+  try {
+    const result = await bulkUploadStudents(file);
+    toast.success(`Uploaded: ${result.success} success, ${result.failed} failed`);
+    if (result.errors?.length > 0) result.errors.forEach(err => toast.warning(err));
+    dispatch(fetchStudents({ page, size, search }));
+  } catch {
+    toast.error("Bulk upload failed");
+  } finally {
+    setUploading(false);
+    e.target.value = "";
+  }
+};
+
+const handleExportPdf = async () => {
+  try { await exportStudentsPdf(); toast.success("PDF downloaded!"); }
+  catch { toast.error("Export failed"); }
+};
+
+const handleExportExcel = async () => {
+  try { await exportStudentsExcel(); toast.success("Excel downloaded!"); }
+  catch { toast.error("Export failed"); }
+};
 
   return (
     <div className="fade-in">
       <div className="page-header">
-        <div>
-          <h1 className="page-title">Students</h1>
-          <p className="page-subtitle">{totalElements} total students</p>
-        </div>
-        <button className="btn btn-primary" onClick={() => { setEditData(null); setModalOpen(true); }}>
-          <FiPlus /> Add Student
-        </button>
-      </div>
+  <div>
+    <h1 className="page-title">Students</h1>
+    <p className="page-subtitle">{totalElements} total students</p>
+  </div>
+  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+    {/* Hidden file input */}
+    <input ref={fileInputRef} type="file" accept=".pdf" style={{ display: "none" }} onChange={handleBulkUpload} />
 
+    {/* import */}
+    <button className="btn btn-secondary" onClick={() => fileInputRef.current.click()} disabled={uploading}>
+      <FiUpload /> {uploading ? "Uploading..." : "Import PDF"}
+    </button>
+
+    {/* Export PDF */}
+    <button className="btn btn-secondary" onClick={handleExportPdf}>
+      <FiDownload /> Export PDF
+    </button>
+
+    {/* Export Excel */}
+    <button className="btn btn-secondary" onClick={handleExportExcel}>
+      <FiDownload /> Export Excel
+    </button>
+
+    {/* Add Student */}
+    <button className="btn btn-primary" onClick={() => { setEditData(null); setModalOpen(true); }}>
+      <FiPlus /> Add Student
+    </button>
+  </div>
+</div>
       <div className="toolbar">
         <div className="search-wrap">
           <FiSearch />

@@ -37,4 +37,19 @@ export const API_ENDPOINTS = {
   UPDATE_INSTRUCTOR:    (id) => `/api/instructors/${id}`,
   DELETE_INSTRUCTOR:    (id) => `/api/instructors/${id}`,
   TOGGLE_INSTRUCTOR:    (id) => `/api/instructors/${id}/status`,
+ 
+  // STUDENT bulk/export
+BULK_UPLOAD_STUDENT:   "/api/students/bulk-upload",
+EXPORT_STUDENT_PDF:    "/api/students/export/pdf",
+EXPORT_STUDENT_EXCEL:  "/api/students/export/excel",
+
+// COURSE bulk/export
+BULK_UPLOAD_COURSE:    "/api/courses/bulk-upload",
+EXPORT_COURSE_PDF:     "/api/courses/export/pdf",
+EXPORT_COURSE_EXCEL:   "/api/courses/export/excel",
+
+// BATCH bulk/export
+BULK_UPLOAD_BATCH:     "/api/batches/bulk-upload",
+EXPORT_BATCH_PDF:      "/api/batches/export/pdf",
+EXPORT_BATCH_EXCEL:    "/api/batches/export/excel",
 };

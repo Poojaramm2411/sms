@@ -105,7 +105,7 @@ export default function Courses() {
                 <td className="cell-name">{c.courseName}</td>
                 <td><span className="cell-code">{c.courseCode}</span></td>
                 <td>{c.department || "—"}</td>
-                <td>{c.duration ? `${c.duration} mo` : "—"}</td>
+                <td>{c.duration ? `${c.duration} months` : "—"}</td>
                 <td>{c.batchName || "—"}</td>
                 <td><StatusBadge status={c.status} onClick={() => handleToggle(c.id)} /></td>
                 <td>
